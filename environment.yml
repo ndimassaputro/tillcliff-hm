@@ -1,0 +1,15 @@
+name: tillcliff-hm
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.12
+  - numpy
+  - pandas
+  - matplotlib
+  - scipy
+  - pyvista
+  - pip
+  - pip:
+      - "ogstools[ogs]"

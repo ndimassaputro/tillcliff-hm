@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenGeoSysProject>
+
+    <meshes>
+        <mesh>slope.vtu</mesh>
+        <mesh>slope_left.vtu</mesh>
+        <mesh>slope_right.vtu</mesh>
+        <mesh>slope_top.vtu</mesh>
+        <mesh>slope_bottom.vtu</mesh>
+    </meshes>
+
+    <processes>
+
+        <process>
+
+            <name>RM</name>
+            <type>RICHARDS_MECHANICS</type>
+
+            <integration_order>2</integration_order>
+
+            <constitutive_relation>
+                <type>LinearElasticIsotropic</type>
+                <youngs_modulus>E</youngs_modulus>
+                <poissons_ratio>nu</poissons_ratio>
+            </constitutive_relation>
+
+            <!-- gravity acceleration [m/s2] -->
+            <specific_body_force>
+                0 -9.81
+            </specific_body_force>
+
+            <process_variables>
+                <displacement>displacement</displacement>
+                <pressure>pressure</pressure>
+            </process_variables>
+
+            <secondary_variables>
+                <secondary_variable name="sigma"/>
+                <secondary_variable name="epsilon"/>
+                <secondary_variable name="saturation"/>
+                <secondary_variable name="porosity"/>
+                <secondary_variable name="velocity"/>
+            </secondary_variables>
+
+        </process>
+
+    </processes>
+
+    <media>
+
+        <medium>
+
+            <phases>
+
+                <phase>
+
+                    <type>AqueousLiquid</type>
+
+                    <properties>
+
+                        <property>
+                            <name>density</name>
+                            <type>Constant</type>
+                            <value>1000</value>
+                        </property>
+
+                        <property>
+                            <name>viscosity</name>
+                            <type>Constant</type>
+                            <value>1e-3</value>
+                        </property>
+
+                    </properties>
+
+                </phase>
+
+                <phase>
+
+                    <type>Solid</type>
+
+                    <properties>
+
+                        <property>
+                            <name>density</name>
+                            <type>Constant</type>
+                            <value>2650</value>
+                        </property>
+
+                    </properties>
+
+                </phase>
+
+            </phases>
+
+            <properties>
+
+                <property>
+                    <name>porosity</name>
+                    <type>PorosityFromMassBalance</type>
+                    <initial_porosity>phi0</initial_porosity>
+                    <minimal_porosity>0.15</minimal_porosity>
+                    <maximal_porosity>0.45</maximal_porosity>
+                </property>
+
+                <property>
+                    <name>biot_coefficient</name>
+                    <type>Constant</type>
+                    <value>0.9</value>
+                </property>
+
+                <!--
+                ~4e-9 m/s saturated hydraulic conductivity
+                for water, expressed approximately as
+                intrinsic permeability.
+                -->
+                <property>
+                    <name>permeability</name>
+                    <type>Constant</type>
+                    <value>4e-16</value>
+                </property>
+
+                <property>
+                    <name>saturation</name>
+                    <type>SaturationVanGenuchten</type>
+
+                    <residual_liquid_saturation>
+                        0.05
+                    </residual_liquid_saturation>
+
+                    <residual_gas_saturation>
+                        0.0
+                    </residual_gas_saturation>
+
+                    <exponent>0.235</exponent>
+                    <p_b>123000</p_b>
+
+                </property>
+
+                <property>
+                    <name>relative_permeability</name>
+                    <type>RelativePermeabilityVanGenuchten</type>
+
+                    <residual_liquid_saturation>
+                        0.05
+                    </residual_liquid_saturation>
+
+                    <residual_gas_saturation>
+                        0.0
+                    </residual_gas_saturation>
+
+                    <exponent>0.235</exponent>
+
+                    <minimum_relative_permeability_liquid>
+                        1e-12
+                    </minimum_relative_permeability_liquid>
+
+                </property>
+
+                <property>
+                    <name>bishops_effective_stress</name>
+                    <type>BishopsPowerLaw</type>
+                    <exponent>1</exponent>
+                </property>
+
+                <property>
+                    <name>reference_temperature</name>
+                    <type>Constant</type>
+                    <value>293.15</value>
+                </property>
+
+            </properties>
+
+        </medium>
+
+    </media>
+
+    <time_loop>
+
+        <processes>
+
+            <process ref="RM">
+
+                <nonlinear_solver>
+                    newton
+                </nonlinear_solver>
+
+                <convergence_criterion>
+                    <type>PerComponentDeltaX</type>
+                    <norm_type>NORM2</norm_type>
+
+                    <abstols>
+                        1e-7 1e-7 1e-7
+                    </abstols>
+
+                    <reltols>
+                        1e-8 1e-8 1e-8
+                    </reltols>
+
+                </convergence_criterion>
+
+                <time_discretization>
+                    <type>BackwardEuler</type>
+                </time_discretization>
+
+                <!-- 30-day gravity / hydraulic equilibration -->
+                <time_stepping>
+
+                    <type>FixedTimeStepping</type>
+
+                    <t_initial>0</t_initial>
+                    <t_end>2592000</t_end>
+
+                    <timesteps>
+
+                        <pair>
+                            <repeat>1</repeat>
+                            <delta_t>3600</delta_t>
+                        </pair>
+
+                        <pair>
+                            <repeat>5</repeat>
+                            <delta_t>18000</delta_t>
+                        </pair>
+
+                        <pair>
+                            <repeat>29</repeat>
+                            <delta_t>86400</delta_t>
+                        </pair>
+
+                    </timesteps>
+
+                </time_stepping>
+
+            </process>
+
+        </processes>
+
+        <output>
+
+            <type>VTK</type>
+
+            <prefix>
+                phase04a_gravity
+            </prefix>
+
+            <suffix>
+                _ts_{:timestep}_t_{:time}
+            </suffix>
+
+            <timesteps>
+                <pair>
+                    <repeat>1000</repeat>
+                    <each_steps>1</each_steps>
+                </pair>
+            </timesteps>
+
+            <variables>
+                <variable>pressure</variable>
+                <variable>displacement</variable>
+                <variable>saturation</variable>
+                <variable>porosity</variable>
+                <variable>sigma</variable>
+                <variable>epsilon</variable>
+                <variable>velocity</variable>
+            </variables>
+
+        </output>
+
+    </time_loop>
+
+    <parameters>
+
+        <!-- provisional screening mechanics -->
+        <parameter>
+            <name>E</name>
+            <type>Constant</type>
+            <value>50e6</value>
+        </parameter>
+
+        <parameter>
+            <name>nu</name>
+            <type>Constant</type>
+            <value>0.30</value>
+        </parameter>
+
+        <parameter>
+            <name>phi0</name>
+            <type>Constant</type>
+            <value>0.27</value>
+        </parameter>
+
+        <parameter>
+            <name>displacement0</name>
+            <type>Constant</type>
+            <values>0 0</values>
+        </parameter>
+
+        <!-- initial matric suction = 100 kPa -->
+        <parameter>
+            <name>pressure0</name>
+            <type>Constant</type>
+            <value>-100000</value>
+        </parameter>
+
+        <parameter>
+            <name>surface_pressure</name>
+            <type>Constant</type>
+            <value>-100000</value>
+        </parameter>
+
+        <parameter>
+            <name>zero</name>
+            <type>Constant</type>
+            <value>0</value>
+        </parameter>
+
+    </parameters>
+
+    <process_variables>
+
+        <process_variable>
+
+            <name>displacement</name>
+            <components>2</components>
+            <order>1</order>
+
+            <initial_condition>
+                displacement0
+            </initial_condition>
+
+            <boundary_conditions>
+
+                <!-- prevent horizontal rigid translation -->
+                <boundary_condition>
+                    <mesh>slope_left</mesh>
+                    <type>Dirichlet</type>
+                    <component>0</component>
+                    <parameter>zero</parameter>
+                </boundary_condition>
+
+                <boundary_condition>
+                    <mesh>slope_right</mesh>
+                    <type>Dirichlet</type>
+                    <component>0</component>
+                    <parameter>zero</parameter>
+                </boundary_condition>
+
+                <!-- rigid vertical base -->
+                <boundary_condition>
+                    <mesh>slope_bottom</mesh>
+                    <type>Dirichlet</type>
+                    <component>1</component>
+                    <parameter>zero</parameter>
+                </boundary_condition>
+
+            </boundary_conditions>
+
+        </process_variable>
+
+        <process_variable>
+
+            <name>pressure</name>
+            <components>1</components>
+            <order>1</order>
+
+            <initial_condition>
+                pressure0
+            </initial_condition>
+
+            <boundary_conditions>
+
+                <!-- exposed ground surface -->
+                <boundary_condition>
+                    <mesh>slope_top</mesh>
+                    <type>Dirichlet</type>
+                    <parameter>
+                        surface_pressure
+                    </parameter>
+                </boundary_condition>
+
+            </boundary_conditions>
+
+        </process_variable>
+
+    </process_variables>
+
+    <nonlinear_solvers>
+
+        <nonlinear_solver>
+
+            <name>newton</name>
+            <type>Newton</type>
+
+            <max_iter>40</max_iter>
+
+            <linear_solver>
+                linear_solver
+            </linear_solver>
+
+        </nonlinear_solver>
+
+    </nonlinear_solvers>
+
+    <linear_solvers>
+
+        <linear_solver>
+
+            <name>linear_solver</name>
+
+            <eigen>
+                <solver_type>SparseLU</solver_type>
+                <scaling>true</scaling>
+            </eigen>
+
+        </linear_solver>
+
+    </linear_solvers>
+
+</OpenGeoSysProject>

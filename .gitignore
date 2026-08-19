@@ -1,0 +1,46 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Environments
+.venv/
+venv/
+env/
+.env
+
+# OpenGeoSys raw / heavy solver output
+results/
+*.pvd
+*.vtu
+*.pvtu
+*.bin
+*.h5
+*.xdmf
+*.log
+
+# Temporary numerical output
+*.bak
+*.tmp
+*.out
+
+# IDE
+.vscode/
+.idea/
+
+# Keep curated processed data and figures
+!data/
+!data/processed/
+!data/processed/*.csv
+
+!figures/
+!figures/*.png
+!figures/*.pdf

@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenGeoSysProject>
+
+    <meshes>
+        <mesh>column.vtu</mesh>
+        <mesh>column_left.vtu</mesh>
+        <mesh>column_right.vtu</mesh>
+        <mesh>column_bottom.vtu</mesh>
+        <mesh>column_top.vtu</mesh>
+    </meshes>
+
+    <processes>
+        <process>
+            <name>RM</name>
+            <type>RICHARDS_MECHANICS</type>
+            <integration_order>2</integration_order>
+
+            <constitutive_relation>
+                <type>LinearElasticIsotropic</type>
+                <youngs_modulus>E</youngs_modulus>
+                <poissons_ratio>nu</poissons_ratio>
+            </constitutive_relation>
+
+            <!--
+            Phase 03A isolates hydraulic-mechanical response.
+            Gravity is deliberately omitted here.
+            -->
+            <specific_body_force>0 0</specific_body_force>
+
+            <process_variables>
+                <displacement>displacement</displacement>
+                <pressure>pressure</pressure>
+            </process_variables>
+
+            <secondary_variables>
+                <secondary_variable name="sigma"/>
+                <secondary_variable name="epsilon"/>
+                <secondary_variable name="saturation"/>
+                <secondary_variable name="porosity"/>
+                <secondary_variable name="velocity"/>
+            </secondary_variables>
+        </process>
+    </processes>
+
+    <media>
+        <medium>
+
+            <phases>
+
+                <phase>
+                    <type>AqueousLiquid</type>
+
+                    <properties>
+
+                        <property>
+                            <name>density</name>
+                            <type>Constant</type>
+                            <value>1000</value>
+                        </property>
+
+                        <property>
+                            <name>viscosity</name>
+                            <type>Constant</type>
+                            <value>1e-3</value>
+                        </property>
+
+                    </properties>
+                </phase>
+
+                <phase>
+                    <type>Solid</type>
+
+                    <properties>
+
+                        <property>
+                            <name>density</name>
+                            <type>Constant</type>
+                            <value>2650</value>
+                        </property>
+
+                    </properties>
+                </phase>
+
+            </phases>
+
+            <properties>
+
+                <!--
+                Representative Avedøre clayey-till matrix porosity.
+                Screening value, not site-specific calibration.
+                -->
+                <property>
+                    <name>porosity</name>
+                    <type>PorosityFromMassBalance</type>
+                    <initial_porosity>phi0</initial_porosity>
+                    <minimal_porosity>0.15</minimal_porosity>
+                    <maximal_porosity>0.45</maximal_porosity>
+                </property>
+
+                <property>
+                    <name>biot_coefficient</name>
+                    <type>Constant</type>
+                    <value>0.9</value>
+                </property>
+
+                <!--
+                Intrinsic permeability ~4e-16 m2 corresponds roughly
+                to Ksat ~4e-9 m/s for water.
+                -->
+                <property>
+                    <name>permeability</name>
+                    <type>Constant</type>
+                    <value>4e-16</value>
+                </property>
+
+                <!--
+                Screening van Genuchten representation approximately
+                anchored to Avedøre 1 m retention observations.
+                -->
+                <property>
+                    <name>saturation</name>
+                    <type>SaturationVanGenuchten</type>
+                    <residual_liquid_saturation>0.05</residual_liquid_saturation>
+                    <residual_gas_saturation>0.0</residual_gas_saturation>
+                    <exponent>0.235</exponent>
+                    <p_b>123000</p_b>
+                </property>
+
+                <property>
+                    <name>relative_permeability</name>
+                    <type>RelativePermeabilityVanGenuchten</type>
+                    <residual_liquid_saturation>0.05</residual_liquid_saturation>
+                    <residual_gas_saturation>0.0</residual_gas_saturation>
+                    <exponent>0.235</exponent>
+                    <minimum_relative_permeability_liquid>1e-12</minimum_relative_permeability_liquid>
+                </property>
+
+                <property>
+                    <name>bishops_effective_stress</name>
+                    <type>BishopsPowerLaw</type>
+                    <exponent>1</exponent>
+                </property>
+
+                <property>
+                    <name>reference_temperature</name>
+                    <type>Constant</type>
+                    <value>293.15</value>
+                </property>
+
+            </properties>
+
+        </medium>
+    </media>
+
+    <time_loop>
+
+        <processes>
+
+            <process ref="RM">
+
+                <nonlinear_solver>newton</nonlinear_solver>
+
+                <convergence_criterion>
+                    <type>PerComponentDeltaX</type>
+                    <norm_type>NORM2</norm_type>
+                    <abstols>1e-8 1e-8 1e-8</abstols>
+                    <reltols>1e-8 1e-8 1e-8</reltols>
+                </convergence_criterion>
+
+                <time_discretization>
+                    <type>BackwardEuler</type>
+                </time_discretization>
+
+                <time_stepping>
+                    <type>FixedTimeStepping</type>
+
+                    <t_initial>0</t_initial>
+
+                    <!--
+                    30 d pre-equilibration
+                    + 365 d seasonal cycle
+                    -->
+                    <t_end>97200000</t_end>
+
+                    <timesteps>
+                        <pair>
+                            <repeat>1125</repeat>
+                            <delta_t>86400</delta_t>
+                        </pair>
+                    </timesteps>
+
+                </time_stepping>
+
+            </process>
+
+        </processes>
+
+        <output>
+
+            <type>VTK</type>
+
+            <prefix>seasonal_column_3cycle</prefix>
+            <suffix>_ts_{:timestep}_t_{:time}</suffix>
+
+            <timesteps>
+                <pair>
+                    <repeat>1000</repeat>
+                    <each_steps>5</each_steps>
+                </pair>
+            </timesteps>
+
+            <variables>
+                <variable>pressure</variable>
+                <variable>displacement</variable>
+                <variable>saturation</variable>
+                <variable>porosity</variable>
+                <variable>sigma</variable>
+                <variable>epsilon</variable>
+                <variable>velocity</variable>
+            </variables>
+
+        </output>
+
+    </time_loop>
+
+    <parameters>
+
+        <!-- provisional mechanical screening parameters -->
+        <parameter>
+            <name>E</name>
+            <type>Constant</type>
+            <value>50e6</value>
+        </parameter>
+
+        <parameter>
+            <name>nu</name>
+            <type>Constant</type>
+            <value>0.30</value>
+        </parameter>
+
+        <parameter>
+            <name>phi0</name>
+            <type>Constant</type>
+            <value>0.27</value>
+        </parameter>
+
+        <parameter>
+            <name>displacement0</name>
+            <type>Constant</type>
+            <values>0 0</values>
+        </parameter>
+
+        <!-- initial suction = 100 kPa -->
+        <parameter>
+            <name>pressure0</name>
+            <type>Constant</type>
+            <value>-100000</value>
+        </parameter>
+
+        <parameter>
+            <name>zero</name>
+            <type>Constant</type>
+            <value>0</value>
+        </parameter>
+
+        <!--
+        Reference magnitude = -100 kPa.
+
+        Curve multiplier:
+        1.00 -> -100 kPa
+        0.30 ->  -30 kPa
+        0.05 ->   -5 kPa
+        0.50 ->  -50 kPa
+        1.20 -> -120 kPa
+        -->
+        <parameter>
+            <name>surface_pressure_scale</name>
+            <type>Constant</type>
+            <value>-100000</value>
+        </parameter>
+
+        <parameter>
+            <name>seasonal_surface_pressure</name>
+            <type>CurveScaled</type>
+            <curve>seasonal_suction</curve>
+            <parameter>surface_pressure_scale</parameter>
+        </parameter>
+
+    </parameters>
+
+    <curves>
+
+        <curve>
+
+            <name>seasonal_suction</name>
+
+            <!--
+            day 0-30   : pre-equilibration
+            day 30-90  : autumn wetting
+            day 90-180 : winter wet state
+            day 180-270: spring drying
+            day 270-360: summer drying
+            day 360-395: return toward initial state
+            -->
+
+            <coords>
+                0
+                2592000
+                7776000
+                15552000
+                23328000
+                31104000
+                34128000
+                39312000
+                47088000
+                54864000
+                62640000
+                65664000
+                70848000
+                78624000
+                86400000
+                94176000
+                97200000
+            </coords>
+
+            <values>
+                1.00
+                1.00
+                0.30
+                0.05
+                0.50
+                1.20
+                1.00
+                0.30
+                0.05
+                0.50
+                1.20
+                1.00
+                0.30
+                0.05
+                0.50
+                1.20
+                1.00
+            </values>
+
+        </curve>
+
+    </curves>
+
+    <process_variables>
+
+        <process_variable>
+
+            <name>displacement</name>
+            <components>2</components>
+            <order>1</order>
+
+            <initial_condition>displacement0</initial_condition>
+
+            <boundary_conditions>
+
+                <!-- lateral confinement -->
+                <boundary_condition>
+                    <mesh>column_left</mesh>
+                    <type>Dirichlet</type>
+                    <component>0</component>
+                    <parameter>zero</parameter>
+                </boundary_condition>
+
+                <boundary_condition>
+                    <mesh>column_right</mesh>
+                    <type>Dirichlet</type>
+                    <component>0</component>
+                    <parameter>zero</parameter>
+                </boundary_condition>
+
+                <!-- fixed vertical base -->
+                <boundary_condition>
+                    <mesh>column_bottom</mesh>
+                    <type>Dirichlet</type>
+                    <component>1</component>
+                    <parameter>zero</parameter>
+                </boundary_condition>
+
+            </boundary_conditions>
+
+        </process_variable>
+
+        <process_variable>
+
+            <name>pressure</name>
+            <components>1</components>
+            <order>1</order>
+
+            <initial_condition>pressure0</initial_condition>
+
+            <boundary_conditions>
+
+                <!--
+                Seasonal hydraulic forcing only at ground surface.
+                Sides and base remain natural no-flow boundaries.
+                -->
+                <boundary_condition>
+                    <mesh>column_top</mesh>
+                    <type>Dirichlet</type>
+                    <parameter>seasonal_surface_pressure</parameter>
+                </boundary_condition>
+
+            </boundary_conditions>
+
+        </process_variable>
+
+    </process_variables>
+
+    <nonlinear_solvers>
+
+        <nonlinear_solver>
+
+            <name>newton</name>
+            <type>Newton</type>
+
+            <max_iter>30</max_iter>
+
+            <linear_solver>linear_solver</linear_solver>
+
+        </nonlinear_solver>
+
+    </nonlinear_solvers>
+
+    <linear_solvers>
+
+        <linear_solver>
+
+            <name>linear_solver</name>
+
+            <eigen>
+                <solver_type>SparseLU</solver_type>
+                <scaling>true</scaling>
+            </eigen>
+
+        </linear_solver>
+
+    </linear_solvers>
+
+</OpenGeoSysProject>

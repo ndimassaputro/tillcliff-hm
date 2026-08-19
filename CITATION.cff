@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this computational portfolio, please cite it as below."
+title: "TillCliff-HM: Seasonal Hydro-Mechanical Preconditioning and Toe-Erosion Sensitivity of a North-European Clayey Glacial-Till Slope"
+type: software
+authors:
+  - family-names: Saputro
+    given-names: Nurwahid Dimas
+repository-code: "https://github.com/ndimassaputro/tillcliff-hm"
+version: 1.0.0
+date-released: 2026-08-19
