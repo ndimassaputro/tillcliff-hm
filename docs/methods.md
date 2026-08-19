@@ -56,7 +56,7 @@ because the deactivation geometry is discrete.
 The primary response is the RMS norm of displacement increment over a fixed
 slope-body monitoring zone:
 
-\[
+```math
 R_\mathrm{RMS}
 =
 \sqrt{
@@ -64,7 +64,7 @@ R_\mathrm{RMS}
 \sum_i
 \|\Delta\mathbf u_i\|^2
 }.
-\]
+```
 
 The monitoring zone excludes the immediate coastal notch-front region.
 
@@ -89,7 +89,7 @@ to correspond to realizable physical loading histories.
 
 Displacement-field similarity is quantified by cosine similarity:
 
-\[
+```math
 C =
 \frac{
 \Delta\mathbf u_i
@@ -99,7 +99,7 @@ C =
 \|\Delta\mathbf u_i\|
 \|\Delta\mathbf u_\mathrm{ref}\|
 }.
-\]
+```
 
 A best-fit scalar amplitude and normalized residual are also calculated.
 
@@ -110,7 +110,7 @@ proxy.
 
 For each erosion state,
 
-\[
+```math
 \mathrm{SNR}
 =
 \frac{
@@ -118,9 +118,9 @@ R_\mathrm{erosion}
 }{
 R_\mathrm{intact\,drift}
 }.
-\]
+```
 
-The minimum wet-state ratio exceeded \(3\times10^3\), supporting interpretation
+The minimum wet-state ratio exceeded $3\times10^3$, supporting interpretation
 of the observed wet/reference mode difference as numerically resolved.
 
 ## Mesh-sensitivity safeguard

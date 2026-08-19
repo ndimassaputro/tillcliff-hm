@@ -43,13 +43,13 @@ the influence of hydraulic state from the inherited effective-stress field.
 
 Within the present model, antecedent hydraulic state strongly controls the
 **magnitude and spatial mode** of the distributed slope response. At
-\(E=0.25\) m, with inherited effective stress fixed at the reference state,
+$E=0.25$ m, with inherited effective stress fixed at the reference state,
 the dry hydraulic state produces approximately **1.246 times** the reference
 RMS response, whereas the wet hydraulic state produces approximately
 **0.156 times** the reference response. Replacing inherited stress alone
 changes the response by only about one percent. The wet-state displacement
 field also departs progressively from the reference deformation mode, with
-cosine similarity decreasing to **0.7689** at \(E=0.25\) m.
+cosine similarity decreasing to **0.7689** at $E=0.25$ m.
 
 Mesh-refinement and localization diagnostics demonstrate that notch-front
 plasticity and solver nonconvergence are not mesh-objective. They are therefore
@@ -70,7 +70,7 @@ excluded from physical failure interpretation.
 > toe recession?**
 
 The project originally examined whether an erosion threshold
-\(E_{\mathrm{crit}}\) could be identified. That interpretation was abandoned
+$E_{\mathrm{crit}}$ could be identified. That interpretation was abandoned
 after mesh studies demonstrated that local notch-front plasticity and
 nonconvergence depend strongly on the discrete element-deactivation topology.
 
@@ -116,23 +116,23 @@ Three antecedent branches are retained:
 After transfer to the production mesh, all three states preserve the required
 ordering:
 
-\[
+```math
 p_{\mathrm{dry}}
 <
 p_{\mathrm{ref}}
 <
 p_{\mathrm{wet}}
-\]
+```
 
 and
 
-\[
+```math
 S_{r,\mathrm{dry}}
 <
 S_{r,\mathrm{ref}}
 <
 S_{r,\mathrm{wet}}.
-\]
+```
 
 ### 2.3 Mechanical model
 
@@ -168,7 +168,7 @@ It does not represent:
 
 The computational sequence is:
 
-\[
+```math
 \text{seasonal HM forcing}
 \rightarrow
 \text{antecedent state}
@@ -178,11 +178,11 @@ The computational sequence is:
 \text{toe recession}
 \rightarrow
 \text{distributed deformation}.
-\]
+```
 
 The main slope-body metric is
 
-\[
+```math
 R_{\mathrm{RMS}}
 =
 \sqrt{
@@ -192,7 +192,7 @@ R_{\mathrm{RMS}}
 \Delta \mathbf{u}_i
 \right\|^2
 },
-\]
+```
 
 evaluated in a fixed monitoring region excluding the immediate notch-front
 localization zone.
@@ -217,10 +217,10 @@ slope-body response under identical realized toe geometry.
 seasonal branches as a function of actual removed toe area.
 (b) Controlled hydraulic/effective-stress decomposition.
 
-At nominal toe recession \(E=0.25\) m, under a common reference inherited
+At nominal toe recession $E=0.25$ m, under a common reference inherited
 stress state:
 
-| Numerical experiment | \(R_{\mathrm{RMS}}/R_{\mathrm{ref}}\) |
+| Numerical experiment | $R_{\mathrm{RMS}}/R_{\mathrm{ref}}$ |
 |---|---:|
 | Dry pressure + reference stress | **1.2456** |
 | Reference pressure + reference stress | **1.0000** |
@@ -242,7 +242,7 @@ To determine whether hydraulic state merely scales one common displacement
 pattern, the full slope-body displacement vectors were compared using cosine
 similarity,
 
-\[
+```math
 C =
 \frac{
 \Delta \mathbf{u}_{H}
@@ -256,7 +256,7 @@ C =
 \Delta \mathbf{u}_{\mathrm{ref}}
 \right\|
 }.
-\]
+```
 
 <p align="center">
   <img src="figures/fig02_deformation_mode.png" width="92%">
@@ -268,15 +268,15 @@ displacement fields relative to the reference state.
 
 The dry and reference responses remain nearly collinear:
 
-\[
+```math
 C_{\mathrm{dry/ref}}
 \ge
 0.99969.
-\]
+```
 
 The wet/reference similarity decreases with recession:
 
-| \(E\) [m] | Wet/reference cosine |
+| $E$ [m] | Wet/reference cosine |
 |---:|---:|
 | 0.05 | **0.9249** |
 | 0.15 | **0.9256** |
@@ -301,11 +301,11 @@ numerical displacement drift.
 
 The minimum wet-state signal-to-drift ratio is
 
-\[
+```math
 \mathrm{SNR}_{\mathrm{wet,min}}
 \approx
 3.07\times10^{3}.
-\]
+```
 
 The observed wet/reference mode difference is therefore numerically resolved
 relative to the measured intact-hold drift floor.
@@ -330,7 +330,7 @@ Therefore:
 
 Likewise:
 
-- no physical \(E_{\mathrm{crit}}\) is reported;
+- no physical $E_{\mathrm{crit}}$ is reported;
 - no factor of safety is inferred;
 - no landslide initiation threshold is inferred from local plastic strain;
 - notch-front mesh sensitivity is reported rather than hidden.

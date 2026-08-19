@@ -5,7 +5,7 @@
 At identical removed toe geometry, dry, reference, and wet hydraulic states
 produce strongly different incremental distributed deformation.
 
-At nominal recession \(E=0.25\) m:
+At nominal recession $E=0.25$ m:
 
 - dry/reference RMS response ratio: **1.2456**;
 - wet/reference RMS response ratio: **0.1558**.
@@ -17,7 +17,7 @@ The monitored slope body remains elastic over the common comparison range.
 Holding inherited reference effective stress fixed while changing hydraulic
 state reproduces almost the entire dry/wet response separation.
 
-At \(E=0.25\) m:
+At $E=0.25$ m:
 
 - dry pressure + reference stress:
   **1.2456 × reference**;
@@ -43,9 +43,9 @@ Dry and reference responses retain almost identical displacement-vector shape:
 
 Wet/reference similarity decreases with erosion:
 
-- \(E=0.05\) m: **0.92488**;
-- \(E=0.15\) m: **0.92561**;
-- \(E=0.25\) m: **0.76888**.
+- $E=0.05$ m: **0.92488**;
+- $E=0.15$ m: **0.92561**;
+- $E=0.25$ m: **0.76888**.
 
 Thus the wet-state response is not simply a scalar reduction of the reference
 response.
@@ -54,9 +54,9 @@ response.
 
 The smallest wet-state signal-to-intact-drift ratio is approximately:
 
-\[
+```math
 3.07\times10^3.
-\]
+```
 
 The resolved mode-shape difference is therefore far above the measured
 late-intact numerical displacement drift.
@@ -71,5 +71,5 @@ dependent on the discrete element-removal event sequence.
 
 The local plastic hotspot followed the notch interface on all tested meshes.
 
-Therefore no physical \(E_\mathrm{crit}\), factor of safety, or landslide
+Therefore no physical $E_\mathrm{crit}$, factor of safety, or landslide
 initiation threshold is reported.
