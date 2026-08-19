@@ -1,80 +1,55 @@
 from pathlib import Path
-import shutil
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 
 ROOT = Path.cwd()
 
-FIG = ROOT / "figures"
-DATA = ROOT / "data" / "processed"
+DATA = (
+    ROOT
+    / "data"
+    / "processed"
+)
+
+FIG = (
+    ROOT
+    / "figures"
+)
 
 FIG.mkdir(
     parents=True,
     exist_ok=True,
 )
 
-DATA.mkdir(
-    parents=True,
-    exist_ok=True,
-)
 
-
-SOURCES = {
-    "antecedent_state_comparison.csv":
-        ROOT
-        / "results"
-        / "phase05e3_analysis"
-        / "antecedent_state_comparison.csv",
-
-    "decomposition_response.csv":
-        ROOT
-        / "results"
-        / "phase05e4_analysis"
-        / "decomposition_response.csv",
-
-    "mode_shape_audit.csv":
-        ROOT
-        / "results"
-        / "phase05e5_mode_audit"
-        / "mode_shape_audit.csv",
-
-    "signal_to_drift_audit.csv":
-        ROOT
-        / "results"
-        / "phase05e6_signal_audit"
-        / "signal_to_drift_audit.csv",
-}
-
-
-for name, src in SOURCES.items():
-
-    if not src.exists():
-
-        raise RuntimeError(
-            f"Missing required result: {src}"
-        )
-
-    shutil.copy2(
-        src,
-        DATA / name,
-    )
-
+# ============================================================
+# FORMAL JOURNAL-LIKE STYLE
+#
+# Explicit requirement:
+# top and right axis lines ARE visible.
+# ============================================================
 
 plt.rcParams.update(
     {
+        "font.family": "serif",
+        "font.serif": [
+            "Times New Roman",
+            "Times",
+            "DejaVu Serif",
+        ],
+        "mathtext.fontset": "dejavuserif",
         "font.size": 10.5,
-        "axes.titlesize": 12,
-        "axes.labelsize": 11,
-        "legend.fontsize": 9.5,
-        "xtick.labelsize": 9.5,
-        "ytick.labelsize": 9.5,
-        "figure.dpi": 120,
-        "savefig.dpi": 320,
-        "axes.linewidth": 0.8,
-        "lines.linewidth": 2.0,
-        "lines.markersize": 6,
+        "axes.titlesize": 11.5,
+        "axes.labelsize": 10.5,
+        "legend.fontsize": 8.8,
+        "xtick.labelsize": 9.2,
+        "ytick.labelsize": 9.2,
+        "axes.linewidth": 0.9,
+        "lines.linewidth": 1.8,
+        "lines.markersize": 5.5,
+        "savefig.dpi": 350,
         "pdf.fonttype": 42,
         "ps.fonttype": 42,
     }
@@ -82,43 +57,92 @@ plt.rcParams.update(
 
 
 COLORS = {
-    "dry": "#B36B21",
-    "reference": "#404040",
-    "wet": "#277DA1",
-    "stress_dry": "#D9A066",
-    "stress_wet": "#75B5CF",
+    "dry": "#9A5A24",
+    "reference": "#333333",
+    "wet": "#1F617D",
+    "dry_light": "#C99567",
+    "wet_light": "#70A3B8",
+    "accent": "#465C75",
 }
 
 
-def finish(ax):
+def formal_axes(ax):
 
-    ax.spines["top"].set_visible(
-        False
-    )
+    for spine in [
+        "left",
+        "right",
+        "bottom",
+        "top",
+    ]:
 
-    ax.spines["right"].set_visible(
-        False
+        ax.spines[
+            spine
+        ].set_visible(
+            True
+        )
+
+        ax.spines[
+            spine
+        ].set_linewidth(
+            0.9
+        )
+
+        ax.spines[
+            spine
+        ].set_color(
+            "0.15"
+        )
+
+
+    ax.tick_params(
+        axis="both",
+        which="both",
+        direction="in",
+        top=True,
+        right=True,
+        length=4.0,
+        width=0.8,
     )
 
     ax.grid(
-        axis="y",
-        alpha=0.18,
-        linewidth=0.7,
+        False
     )
 
 
-def save(fig, stem):
+def panel_label(
+    ax,
+    label,
+):
 
-    fig.tight_layout()
+    ax.text(
+        -0.12,
+        1.04,
+        label,
+        transform=ax.transAxes,
+        ha="left",
+        va="bottom",
+        fontweight="bold",
+        fontsize=11,
+    )
+
+
+def save(
+    fig,
+    stem,
+):
 
     fig.savefig(
-        FIG / f"{stem}.png",
+        FIG
+        / f"{stem}.png",
         bbox_inches="tight",
+        facecolor="white",
     )
 
     fig.savefig(
-        FIG / f"{stem}.pdf",
+        FIG
+        / f"{stem}.pdf",
         bbox_inches="tight",
+        facecolor="white",
     )
 
     plt.close(
@@ -127,23 +151,203 @@ def save(fig, stem):
 
 
 # ============================================================
-# FIGURE 1
-# ANTECEDENT HYDRAULIC STATE × TOE RECESSION
+# LOAD VERIFIED PROCESSED RESULTS
 # ============================================================
 
-df = pd.read_csv(
+antecedent = pd.read_csv(
     DATA
     / "antecedent_state_comparison.csv"
 )
 
-x = df[
-    "removed_area_m2"
+decomp = pd.read_csv(
+    DATA
+    / "decomposition_response.csv"
+)
+
+mode = pd.read_csv(
+    DATA
+    / "mode_shape_audit.csv"
+)
+
+signal = pd.read_csv(
+    DATA
+    / "signal_to_drift_audit.csv"
+)
+
+
+# ============================================================
+# FIGURE 0 — GRAPHICAL ABSTRACT
+# ============================================================
+
+fig, ax = plt.subplots(
+    figsize=(10.0, 2.9)
+)
+
+ax.set_xlim(
+    0,
+    1,
+)
+
+ax.set_ylim(
+    0,
+    1,
+)
+
+ax.axis(
+    "off"
+)
+
+
+boxes = [
+    (
+        0.09,
+        "Seasonal\nwetting–drying",
+        "Hydraulic forcing",
+    ),
+    (
+        0.29,
+        "Antecedent\nsoil-water state",
+        "Dry / reference / wet",
+    ),
+    (
+        0.50,
+        "Coupled HM\nslope model",
+        "Richards + deformation",
+    ),
+    (
+        0.71,
+        "Prescribed basal\ntoe recession",
+        "Element deactivation",
+    ),
+    (
+        0.91,
+        "Distributed\nslope response",
+        "Magnitude + mode",
+    ),
 ]
 
 
-fig, ax = plt.subplots(
-    figsize=(7.0, 4.5)
+for x, title, subtitle in boxes:
+
+    ax.text(
+        x,
+        0.58,
+        title,
+        ha="center",
+        va="center",
+        fontsize=10.5,
+        fontweight="bold",
+        bbox={
+            "boxstyle":
+                "round,pad=0.6",
+
+            "facecolor":
+                "#F8F8F8",
+
+            "edgecolor":
+                "#333333",
+
+            "linewidth":
+                0.9,
+        },
+    )
+
+    ax.text(
+        x,
+        0.22,
+        subtitle,
+        ha="center",
+        va="center",
+        fontsize=8.2,
+        color="0.30",
+    )
+
+
+for x0, x1 in [
+    (
+        0.16,
+        0.22,
+    ),
+    (
+        0.36,
+        0.43,
+    ),
+    (
+        0.57,
+        0.64,
+    ),
+    (
+        0.78,
+        0.84,
+    ),
+]:
+
+    ax.annotate(
+        "",
+        xy=(
+            x1,
+            0.58,
+        ),
+        xytext=(
+            x0,
+            0.58,
+        ),
+        arrowprops={
+            "arrowstyle":
+                "->",
+
+            "linewidth":
+                1.2,
+
+            "color":
+                "0.25",
+        },
+    )
+
+
+ax.text(
+    0.50,
+    0.96,
+    (
+        "TillCliff-HM: seasonal hydro-mechanical "
+        "preconditioning under coastal toe recession"
+    ),
+    ha="center",
+    va="top",
+    fontsize=12.2,
+    fontweight="bold",
 )
+
+
+save(
+    fig,
+    "fig00_graphical_abstract",
+)
+
+
+# ============================================================
+# FIGURE 1 — MAIN RESPONSE + ATTRIBUTION
+# ============================================================
+
+fig, axes = plt.subplots(
+    1,
+    2,
+    figsize=(10.6, 4.25),
+)
+
+
+# ------------------------------------------------------------
+# Panel a:
+# Production seasonal branches
+# ------------------------------------------------------------
+
+ax = axes[
+    0
+]
+
+x = antecedent[
+    "removed_area_m2"
+]
 
 
 for state, label in [
@@ -163,119 +367,79 @@ for state, label in [
 
     ax.plot(
         x,
-        df[
+        antecedent[
             f"{state}_R_body_rms_mm"
         ],
         marker="o",
-        label=label,
         color=COLORS[
             state
         ],
+        label=label,
     )
 
 
 ax.set_xlabel(
-    "Actual removed toe-notch area, "
+    r"Actual removed area, "
     r"$A_{\mathrm{rem}}$ [m$^2$]"
 )
 
 ax.set_ylabel(
-    "Distributed slope-body RMS "
-    "displacement [mm]"
+    r"Slope-body "
+    r"$R_{\mathrm{RMS}}$ [mm]"
 )
 
 ax.set_title(
-    "Antecedent hydraulic state controls "
-    "erosion-induced deformation"
+    "Seasonal antecedent branches"
 )
 
 ax.legend(
-    frameon=False
+    frameon=False,
+    loc="upper left",
 )
 
-finish(
+formal_axes(
     ax
 )
 
-save(
-    fig,
-    "fig01_antecedent_hydraulic_response",
+panel_label(
+    ax,
+    "(a)",
 )
 
 
-# ============================================================
-# FIGURE 2
-# PRESSURE / STRESS DECOMPOSITION
-# ============================================================
+# ------------------------------------------------------------
+# Panel b:
+# Controlled pressure / inherited stress decomposition
+# ------------------------------------------------------------
 
-df = pd.read_csv(
-    DATA
-    / "decomposition_response.csv"
-)
+ax = axes[
+    1
+]
 
-E = df[
+E = decomp[
     "E_m"
 ]
 
-ref = df[
+ref = decomp[
     "refP_refS_Rrms_mm"
 ]
 
 
-ratios = {
-    "Dry pressure + reference stress":
-        (
-            df[
-                "dryP_refS_Rrms_mm"
-            ]
-            / ref
-        ),
-
-    "Wet pressure + reference stress":
-        (
-            df[
-                "wetP_refS_Rrms_mm"
-            ]
-            / ref
-        ),
-
-    "Reference pressure + dry stress":
-        (
-            df[
-                "refP_dryS_Rrms_mm"
-            ]
-            / ref
-        ),
-
-    "Reference pressure + wet stress":
-        (
-            df[
-                "refP_wetS_Rrms_mm"
-            ]
-            / ref
-        ),
-}
-
-
-fig, ax = plt.subplots(
-    figsize=(7.2, 4.6)
-)
-
-
 ax.axhline(
     1.0,
-    color="0.55",
+    color="0.30",
     linestyle="--",
-    linewidth=1.1,
+    linewidth=1.0,
     label="Reference",
 )
 
 
 ax.plot(
     E,
-    ratios[
-        "Dry pressure + reference stress"
-    ],
+    decomp[
+        "dryP_refS_Rrms_mm"
+    ]
+    / ref,
     marker="o",
     color=COLORS[
         "dry"
@@ -286,9 +450,10 @@ ax.plot(
 
 ax.plot(
     E,
-    ratios[
-        "Wet pressure + reference stress"
-    ],
+    decomp[
+        "wetP_refS_Rrms_mm"
+    ]
+    / ref,
     marker="o",
     color=COLORS[
         "wet"
@@ -299,13 +464,14 @@ ax.plot(
 
 ax.plot(
     E,
-    ratios[
-        "Reference pressure + dry stress"
-    ],
+    decomp[
+        "refP_dryS_Rrms_mm"
+    ]
+    / ref,
     marker="s",
     linestyle=":",
     color=COLORS[
-        "stress_dry"
+        "dry_light"
     ],
     label="Ref. pressure + dry stress",
 )
@@ -313,21 +479,21 @@ ax.plot(
 
 ax.plot(
     E,
-    ratios[
-        "Reference pressure + wet stress"
-    ],
+    decomp[
+        "refP_wetS_Rrms_mm"
+    ]
+    / ref,
     marker="s",
     linestyle=":",
     color=COLORS[
-        "stress_wet"
+        "wet_light"
     ],
     label="Ref. pressure + wet stress",
 )
 
 
 ax.set_xlabel(
-    "Nominal toe recession, "
-    r"$E$ [m]"
+    r"Nominal toe recession, $E$ [m]"
 )
 
 ax.set_ylabel(
@@ -336,46 +502,65 @@ ax.set_ylabel(
 )
 
 ax.set_title(
-    "Hydraulic-state effect dominates "
-    "inherited effective-stress effect"
+    "Hydraulic / stress-state attribution"
 )
 
 ax.legend(
     frameon=False,
-    ncol=2,
+    fontsize=7.8,
+    loc="best",
 )
 
-finish(
+formal_axes(
     ax
 )
 
+panel_label(
+    ax,
+    "(b)",
+)
+
+
+fig.subplots_adjust(
+    left=0.085,
+    right=0.985,
+    bottom=0.16,
+    top=0.87,
+    wspace=0.28,
+)
+
+
 save(
     fig,
-    "fig02_pressure_stress_decomposition",
+    "fig01_hydraulic_state_response",
 )
 
 
 # ============================================================
-# FIGURE 3
-# DEFORMATION MODE SIMILARITY
+# FIGURE 2 — DEFORMATION MODE
 # ============================================================
 
-df = pd.read_csv(
-    DATA
-    / "mode_shape_audit.csv"
+fig, axes = plt.subplots(
+    1,
+    2,
+    figsize=(10.6, 4.25),
 )
 
 
-fig, ax = plt.subplots(
-    figsize=(7.0, 4.5)
-)
+# ------------------------------------------------------------
+# Panel a — cosine similarity
+# ------------------------------------------------------------
+
+ax = axes[
+    0
+]
 
 
 ax.plot(
-    df[
+    mode[
         "E_m"
     ],
-    df[
+    mode[
         "dry_cosine"
     ],
     marker="o",
@@ -387,10 +572,10 @@ ax.plot(
 
 
 ax.plot(
-    df[
+    mode[
         "E_m"
     ],
-    df[
+    mode[
         "wet_cosine"
     ],
     marker="o",
@@ -403,10 +588,10 @@ ax.plot(
 
 ax.axhline(
     0.95,
-    color="0.55",
     linestyle="--",
     linewidth=1.0,
-    label="0.95 similarity guide",
+    color="0.45",
+    label="0.95 guide",
 )
 
 
@@ -416,83 +601,149 @@ ax.set_ylim(
 )
 
 ax.set_xlabel(
-    "Nominal toe recession, "
-    r"$E$ [m]"
+    r"Nominal toe recession, $E$ [m]"
 )
 
 ax.set_ylabel(
-    "Displacement-vector cosine similarity"
+    "Vector-field cosine similarity"
 )
 
 ax.set_title(
-    "Wet antecedent state modifies "
-    "the spatial deformation mode"
+    "Displacement-mode similarity"
 )
 
 ax.legend(
-    frameon=False
+    frameon=False,
 )
 
-finish(
+formal_axes(
     ax
 )
 
+panel_label(
+    ax,
+    "(a)",
+)
+
+
+# ------------------------------------------------------------
+# Panel b — residual after scalar best fit
+# ------------------------------------------------------------
+
+ax = axes[
+    1
+]
+
+
+ax.plot(
+    mode[
+        "E_m"
+    ],
+    mode[
+        "dry_shape_residual"
+    ],
+    marker="o",
+    color=COLORS[
+        "dry"
+    ],
+    label="Dry vs reference",
+)
+
+
+ax.plot(
+    mode[
+        "E_m"
+    ],
+    mode[
+        "wet_shape_residual"
+    ],
+    marker="o",
+    color=COLORS[
+        "wet"
+    ],
+    label="Wet vs reference",
+)
+
+
+ax.set_xlabel(
+    r"Nominal toe recession, $E$ [m]"
+)
+
+ax.set_ylabel(
+    "Normalized mode-shape residual"
+)
+
+ax.set_title(
+    "Residual after best-fit amplitude scaling"
+)
+
+ax.legend(
+    frameon=False,
+)
+
+formal_axes(
+    ax
+)
+
+panel_label(
+    ax,
+    "(b)",
+)
+
+
+fig.subplots_adjust(
+    left=0.085,
+    right=0.985,
+    bottom=0.16,
+    top=0.87,
+    wspace=0.28,
+)
+
+
 save(
     fig,
-    "fig03_deformation_mode_similarity",
+    "fig02_deformation_mode",
 )
 
 
 # ============================================================
-# FIGURE 4
-# SIGNAL TO NUMERICAL DRIFT
+# FIGURE 3 — NUMERICAL SIGNAL QUALITY
 # ============================================================
-
-df = pd.read_csv(
-    DATA
-    / "signal_to_drift_audit.csv"
-)
-
 
 fig, ax = plt.subplots(
-    figsize=(7.0, 4.5)
+    figsize=(6.7, 4.5)
 )
 
 
-case_style = {
-    "dryP_refS":
-        (
-            "Dry pressure",
-            COLORS[
-                "dry"
-            ],
-        ),
-
-    "refP_refS":
-        (
-            "Reference",
-            COLORS[
-                "reference"
-            ],
-        ),
-
-    "wetP_refS":
-        (
-            "Wet pressure",
-            COLORS[
-                "wet"
-            ],
-        ),
+styles = {
+    "dryP_refS": (
+        "Dry hydraulic state",
+        COLORS[
+            "dry"
+        ],
+    ),
+    "refP_refS": (
+        "Reference",
+        COLORS[
+            "reference"
+        ],
+    ),
+    "wetP_refS": (
+        "Wet hydraulic state",
+        COLORS[
+            "wet"
+        ],
+    ),
 }
 
 
 for case, (
     label,
     color,
-) in case_style.items():
+) in styles.items():
 
-    part = df[
-        df[
+    part = signal[
+        signal[
             "case"
         ] == case
     ]
@@ -510,175 +761,72 @@ for case, (
     )
 
 
+ax.axhline(
+    10.0,
+    linestyle="--",
+    linewidth=1.0,
+    color="0.45",
+    label="SNR = 10 guide",
+)
+
+
 ax.set_yscale(
     "log"
 )
 
-ax.axhline(
-    10.0,
-    color="0.55",
-    linestyle="--",
-    linewidth=1.0,
-    label="SNR = 10",
-)
-
 ax.set_xlabel(
-    "Nominal toe recession, "
-    r"$E$ [m]"
+    r"Nominal toe recession, $E$ [m]"
 )
 
 ax.set_ylabel(
-    "Signal / intact-hold numerical drift"
+    "Erosion signal / intact-hold drift"
 )
 
 ax.set_title(
-    "Deformation signals remain far above "
-    "the numerical drift floor"
+    "Resolved deformation signal relative "
+    "to numerical drift"
 )
 
 ax.legend(
-    frameon=False
+    frameon=False,
+    loc="best",
 )
 
-finish(
+formal_axes(
     ax
 )
 
-save(
-    fig,
-    "fig04_signal_to_drift",
+
+fig.subplots_adjust(
+    left=0.14,
+    right=0.97,
+    bottom=0.15,
+    top=0.88,
 )
-
-
-# ============================================================
-# FIGURE 0
-# WORKFLOW
-# ============================================================
-
-fig, ax = plt.subplots(
-    figsize=(9.2, 2.7)
-)
-
-ax.axis(
-    "off"
-)
-
-
-boxes = [
-    (
-        0.02,
-        "Seasonal\nwetting–drying",
-    ),
-    (
-        0.22,
-        "Antecedent\nhydraulic state",
-    ),
-    (
-        0.42,
-        "Coupled Richards\nmechanics + MC",
-    ),
-    (
-        0.64,
-        "Prescribed coastal\ntoe recession",
-    ),
-    (
-        0.84,
-        "Distributed\nslope response",
-    ),
-]
-
-
-for x0, text in boxes:
-
-    ax.text(
-        x0,
-        0.50,
-        text,
-        ha="center",
-        va="center",
-        transform=ax.transAxes,
-        fontsize=10.5,
-        bbox={
-            "boxstyle":
-                "round,pad=0.55",
-
-            "facecolor":
-                "white",
-
-            "edgecolor":
-                "0.25",
-
-            "linewidth":
-                1.1,
-        },
-    )
-
-
-for x0, x1 in [
-    (
-        0.09,
-        0.15,
-    ),
-    (
-        0.29,
-        0.35,
-    ),
-    (
-        0.50,
-        0.56,
-    ),
-    (
-        0.72,
-        0.78,
-    ),
-]:
-
-    ax.annotate(
-        "",
-        xy=(
-            x1,
-            0.50,
-        ),
-        xytext=(
-            x0,
-            0.50,
-        ),
-        xycoords=ax.transAxes,
-        arrowprops={
-            "arrowstyle":
-                "->",
-
-            "linewidth":
-                1.4,
-
-            "color":
-                "0.3",
-        },
-    )
 
 
 save(
     fig,
-    "fig00_workflow",
+    "fig03_signal_quality",
 )
 
 
 print(
-    "========================================"
+    "============================================================"
 )
 
 print(
-    "PUBLICATION FIGURES COMPLETE"
+    "FORMAL RESEARCH FIGURES GENERATED"
 )
 
 print(
-    "========================================"
+    "============================================================"
 )
 
 
 for path in sorted(
     FIG.glob(
-        "*"
+        "fig0*"
     )
 ):
 

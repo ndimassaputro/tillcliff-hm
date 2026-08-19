@@ -1,10 +1,20 @@
 cff-version: 1.2.0
-message: "If you use this computational portfolio, please cite it as below."
-title: "TillCliff-HM: Seasonal Hydro-Mechanical Preconditioning and Toe-Erosion Sensitivity of a North-European Clayey Glacial-Till Slope"
+message: "If you use or discuss this computational study, please cite it using the metadata below."
+title: "TillCliff-HM: Seasonal Hydro-Mechanical Preconditioning of a North-European Clayey Glacial-Till Slope under Prescribed Coastal Toe Recession"
 type: software
 authors:
   - family-names: Saputro
     given-names: Nurwahid Dimas
 repository-code: "https://github.com/ndimassaputro/tillcliff-hm"
-version: 1.0.0
+url: "https://github.com/ndimassaputro/tillcliff-hm"
+license: BSD-3-Clause
+version: 1.0.1
 date-released: 2026-08-19
+keywords:
+  - computational geomechanics
+  - hydro-mechanical coupling
+  - unsaturated soil
+  - clayey glacial till
+  - coastal erosion
+  - OpenGeoSys
+  - Mohr-Coulomb
